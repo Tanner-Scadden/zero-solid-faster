@@ -1,8 +1,9 @@
 import { useQuery } from "@rocicorp/zero/solid";
+import { Meta, Title } from "@solidjs/meta";
 import { CategoryPreview } from "@src/common/category-preview";
 import { ProductPreview } from "@src/common/product-preview";
 import { PRODUCT_QUERY } from "@src/zero/product-queries";
-import { Link, createFileRoute } from "@tanstack/solid-router";
+import { createFileRoute } from "@tanstack/solid-router";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { For, Show } from "solid-js";
 
@@ -44,6 +45,12 @@ function RouteComponent() {
 
   return (
     <div class="flex flex-col gap-2">
+      <Title>{product()?.name} | Zero Tanstack Faster</Title>
+      <Meta name="description" content={product()?.description ?? ""} />
+      <Meta property="og:title" content={product()?.name ?? ""} />
+      <Meta property="og:description" content={product()?.description ?? ""} />
+      <Meta property="og:image" content={product()?.imageUrl ?? ""} />
+      <Meta property="og:type" content="product" />
       <h2>{product()?.name}</h2>
       <div class="flex">
         <img src={product()?.imageUrl ?? ""} alt={product()?.name ?? ""} width={300} height={400} />

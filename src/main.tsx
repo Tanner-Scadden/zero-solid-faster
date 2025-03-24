@@ -1,5 +1,6 @@
-import { render } from "solid-js/web";
+import { MetaProvider } from "@solidjs/meta";
 import { RouterProvider, createRouter } from "@tanstack/solid-router";
+import { render } from "solid-js/web";
 import "./global.css";
 
 // Import the generated route tree
@@ -16,7 +17,14 @@ declare module "@tanstack/solid-router" {
 }
 
 // Render the app
-const rootElement = document.getElementById("root")!;
-if (!rootElement.innerHTML) {
-  render(() => <RouterProvider router={router} />, rootElement);
+const rootElement = document.getElementById("root");
+if (rootElement && !rootElement.innerHTML) {
+  render(
+    () => (
+      <MetaProvider>
+        <RouterProvider router={router} />
+      </MetaProvider>
+    ),
+    rootElement
+  );
 }

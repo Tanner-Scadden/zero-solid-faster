@@ -1,4 +1,5 @@
 import { useQuery } from "@rocicorp/zero/solid";
+import { Meta, Title } from "@solidjs/meta";
 import { CategoryPreview } from "@src/common/category-preview";
 import { ProductPreview } from "@src/common/product-preview";
 import { CATEGORY_QUERY } from "@src/zero/category-queries";
@@ -39,6 +40,11 @@ export const CategoryDisplay = (props: { slugs: string[] }) => {
 
   return (
     <div class="flex flex-col gap-2">
+      <Title>{category()?.name} | Zero Tanstack Faster</Title>
+      <Meta name="description" content={category()?.description ?? ""} />
+      <Meta property="og:title" content={category()?.name ?? ""} />
+      <Meta property="og:description" content={category()?.description ?? ""} />
+      <Meta property="og:type" content="website" />
       <Show when={props.slugs.length > 1}>
         <Link
           to="/categories/$"

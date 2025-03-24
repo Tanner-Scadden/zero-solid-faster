@@ -5,6 +5,7 @@
       "name": "hello-zero-solid",
       "dependencies": {
         "@rocicorp/zero": "0.17.2025031400",
+        "@solidjs/meta": "^0.29.4",
         "@tanstack/solid-router": "^1.114.26",
         "@tanstack/solid-virtual": "^3.13.4",
         "arktype": "^2.1.11",
