@@ -8,17 +8,21 @@
   "scripts": {
     "build": "tsc -b && vite build && source .env && npx zero-deploy-permissions -p src/zero/schema.ts --output-format=sql --output-file=.permissions.sql --upstream-db \"$ZERO_UPSTREAM_DB\"",
     "dev": "./scripts/dev.sh",
-    "dev:clean": "source .env && docker volume rm -f docker_zstart_solid_pgdata && rm -rf \"${ZERO_REPLICA_FILE}\"*",
+    "dev:clean": "bun run dev:db-down && bun run seed:cleanup && source .env && docker volume rm -f docker_zstart_solid_pgdata && rm -rf \"${ZERO_REPLICA_FILE}\"*",
+    "dev:init": "bun run dev:clean && bun run seed:generate && bun run dev:db-up",
     "dev:db-down": "docker compose --env-file .env -f ./docker/docker-compose.yml down",
     "dev:db-up": "docker compose --env-file .env -f ./docker/docker-compose.yml up",
     "dev:ui": "VITE_PUBLIC_SERVER='http://localhost:4848' bunx --bun vite",
     "dev:zero-cache": "zero-cache-dev -p src/zero/schema.ts --upstream-db \"$ZERO_UPSTREAM_DB\"",
+    "seed:generate": "bun run seed:cleanup && bun run ./scripts/data-generator.ts",
+    "seed:cleanup": "bun run ./scripts/cleanup-data-generator.ts",
     "lint": "biome check .",
     "format": "biome format . --write"
   },
   "dependencies": {
     "@rocicorp/zero": "0.17.2025031400",
     "@tanstack/solid-router": "^1.114.26",
+    "@tanstack/solid-virtual": "^3.13.4",
     "arktype": "^2.1.11",
     "jose": "^5.9.6",
     "js-cookie": "^3.0.5",
@@ -28,11 +32,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
+    "@faker-js/faker": "^9.6.0",
     "@hono/node-server": "^1.13.2",
     "@tailwindcss/vite": "^4.0.15",
     "@tanstack/router-plugin": "^1.114.27",
     "@tanstack/solid-router-devtools": "^1.114.26",
     "@types/aws-lambda": "8.10.147",
+    "@types/bun": "^1.2.5",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.7.9",
     "concurrently": "^9.1.2",
@@ -44,13 +50,8 @@
     "vite-plugin-solid": "^2.10.2",
     "vite-tsconfig-paths": "^5.1.4"
   },
-  "trustedDependencies": [
-    "@rocicorp/zero-sqlite3",
-    "node-gyp"
-  ],
+  "trustedDependencies": ["@rocicorp/zero-sqlite3", "node-gyp"],
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "@rocicorp/zero-sqlite3"
-    ]
+    "onlyBuiltDependencies": ["@rocicorp/zero-sqlite3"]
   }
 }

@@ -1,13 +1,14 @@
+import { useQuery } from "@rocicorp/zero/solid";
+import { PRIMARY_CATEGORIES_QUERY } from "@src/zero/category-queries";
 import { createFileRoute } from "@tanstack/solid-router";
+import { CategoryDisplay } from "../common/category-display";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
-  return (
-    <div class="p-2">
-      <h3>Welcome Home!</h3>
-    </div>
-  );
+  const [categories] = useQuery(PRIMARY_CATEGORIES_QUERY);
+
+  return <CategoryDisplay slugs={[categories()?.[0]?.slug ?? ""]} />;
 }

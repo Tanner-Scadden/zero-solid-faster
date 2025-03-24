@@ -1,6 +1,6 @@
 import { useQuery } from "@rocicorp/zero/solid";
 import { CATEGORY_QUERY } from "@src/zero/category-queries";
-import { createFileRoute } from "@tanstack/solid-router";
+import { Link, createFileRoute } from "@tanstack/solid-router";
 import { For } from "solid-js";
 
 export const Route = createFileRoute("/$category/")({
@@ -19,7 +19,15 @@ function RouteComponent() {
       <h1 class="text-2xl font-bold">{category()?.name}</h1>
       <div class="flex flex-col gap-2">
         <For each={category()?.subCategories}>
-          {(subCategory) => <div class="text-sm">{subCategory.name}</div>}
+          {(subCategory) => (
+            <Link
+              to="/$category/$subCategory"
+              params={{ category: param().category, subCategory: subCategory.slug }}
+              class="text-sm"
+            >
+              {subCategory.name}
+            </Link>
+          )}
         </For>
       </div>
     </div>

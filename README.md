@@ -40,7 +40,12 @@ bun install
 chmod +x scripts/dev.sh
 ```
 
-4. Start the development environment:
+4. Initialize the database and seeders (Takes a few minutes)
+```bash
+bun run dev:init
+```
+
+5. Start the development environment:
 ```bash
 bun run dev
 ```

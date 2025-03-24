@@ -25,8 +25,8 @@ export const CategoryDrawer = () => {
               }}
             >
               <Link
-                to="/$category"
-                params={{ category: category.slug }}
+                to="/categories/$"
+                params={{ _splat: category.slug }}
                 class="[&.active]:text-blue-500 hover:border-b-2 border-blue-300 pb-0.5 hover:text-blue-500"
               >
                 {category.name}
