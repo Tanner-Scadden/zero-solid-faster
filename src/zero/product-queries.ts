@@ -16,6 +16,15 @@ export const PRODUCT_QUERY = (productSlug: string) =>
     )
     .one();
 
+export const PRODUCT_INVENTORY_QUERY = ({
+  productId,
+  productSlug,
+}: { productId?: string; productSlug?: string }) =>
+  zero.query.products
+    .where(productId ? "id" : "slug", "=", productId ?? productSlug ?? "")
+    .related("orderedItems")
+    .one();
+
 export const PRODUCT_SEARCH_QUERY = (search: string) =>
   zero.query.products.where(({ or, cmp }) => or(cmp("name", "ILIKE", `%${search}%`))).limit(25);
 

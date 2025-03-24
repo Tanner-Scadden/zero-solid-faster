@@ -1,4 +1,5 @@
-import { useCartStore } from "@src/stores/cart-store";
+import { useQuery } from "@rocicorp/zero/solid";
+import { initializeCart, useCartStore } from "@src/stores/cart-store";
 import { zero } from ".";
 import { OrderItem } from "./schema";
 
@@ -46,4 +47,24 @@ export const ADJUST_ITEM_QUANTITY = ({
     productId: productId,
     quantity: quantity,
   });
+};
+
+export const CONFIRM_PURCHASE = () => {
+  const { orderId } = useCartStore();
+  zero.mutate.orders.update({
+    id: orderId,
+    status: "ordered",
+  });
+  initializeCart();
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 1000);
+};
+
+export const CLEAR_CART = () => {
+  const { orderId } = useCartStore();
+  zero.mutate.orders.delete({
+    id: orderId,
+  });
+  initializeCart();
 };

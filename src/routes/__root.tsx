@@ -1,7 +1,9 @@
 import { Meta, Title } from "@solidjs/meta";
+import { ExternalLink } from "@src/common/external-link";
 import { ProductSearch } from "@src/common/product-search";
 import { Link, Outlet, createRootRoute } from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
+import { AboutProjectBanner } from "./-components/about-project-banner";
 import { Cart } from "./-components/cart";
 import { CategoryDrawer } from "./-components/category-drawer";
 
@@ -21,20 +23,23 @@ export const Route = createRootRoute({
         <ProductSearch />
         <div class="flex items-center gap-2">
           <Cart />
-          <button class="bg-blue-500 text-white rounded-md p-2" type="button">
-            Login
-          </button>
         </div>
       </div>
       <div class="flex">
         <CategoryDrawer />
         <div
-          class="w-[calc(100%-13rem)] p-3 overflow-x-auto max-h-[calc(100vh-5rem)]"
+          class="w-[calc(100%-12rem)] p-3 pb-0 overflow-x-auto max-h-[calc(100vh-2rem)] relative"
           id="__content"
         >
           <Outlet />
         </div>
       </div>
+      <div class="h-6 border-t border-blue-500 bg-white fixed bottom-0 left-[12rem] w-[calc(100%-15rem)] text-sm justify-center items-center flex">
+        <ExternalLink href="https://github.com/Tanner-Scadden/zero-solid-faster">
+          Check out the source code
+        </ExternalLink>
+      </div>
+      <AboutProjectBanner />
       <TanStackRouterDevtools />
     </>
   ),

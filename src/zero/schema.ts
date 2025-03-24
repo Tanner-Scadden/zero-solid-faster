@@ -101,11 +101,16 @@ const categoryRelationships = relationships(category, ({ one, many }) => ({
   }),
 }));
 
-const productRelationships = relationships(product, ({ one }) => ({
+const productRelationships = relationships(product, ({ one, many }) => ({
   category: one({
     sourceField: ["categoryId"],
     destField: ["id"],
     destSchema: category,
+  }),
+  orderedItems: many({
+    sourceField: ["id"],
+    destField: ["productId"],
+    destSchema: orderItem,
   }),
 }));
 

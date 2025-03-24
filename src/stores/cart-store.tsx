@@ -10,12 +10,7 @@ const [cartStore, setCartStore] = createStore<CartStore>({
   orderId: localStorage.getItem("orderId") ?? "",
 });
 
-onMount(async () => {
-  if (cartStore.orderId) {
-    console.log("CART ALREADY EXISTS");
-    return;
-  }
-
+export const initializeCart = () => {
   console.log("INITIALIZING CART");
 
   const orderId = crypto.randomUUID();
@@ -24,21 +19,25 @@ onMount(async () => {
 
   console.log("Attempting to insert order:", {
     id: orderId,
-    userId: null,
     status: "cart",
     createdAt: Date.now(),
     updatedAt: Date.now(),
   });
 
-  const result = await zero.mutate.orders.insert({
+  zero.mutate.orders.insert({
     id: orderId,
-    userId: null,
     status: "cart",
     createdAt: Date.now(),
     updatedAt: Date.now(),
   });
+};
 
-  console.log("Order inserted:", result);
+onMount(() => {
+  if (cartStore.orderId) {
+    console.log("CART ALREADY EXISTS");
+    return;
+  }
+  initializeCart();
 });
 
 export const useCartStore = () => {

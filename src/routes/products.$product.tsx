@@ -4,7 +4,7 @@ import { CategoryPreview } from "@src/common/category-preview";
 import { ManageQuantityButtons } from "@src/common/manage-quantity-buttons";
 import { ProductPreview } from "@src/common/product-preview";
 import { ADD_ITEM_TO_CART, CART_QUERY } from "@src/zero/cart-queries";
-import { PRODUCT_QUERY } from "@src/zero/product-queries";
+import { PRODUCT_INVENTORY_QUERY, PRODUCT_QUERY } from "@src/zero/product-queries";
 import { Link, createFileRoute } from "@tanstack/solid-router";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { For, Show } from "solid-js";
@@ -22,6 +22,7 @@ function RouteComponent() {
   const param = Route.useParams();
   const [product] = useQuery(() => PRODUCT_QUERY(param().product));
   const [cartData] = useQuery(() => CART_QUERY());
+  const [inventory] = useQuery(() => PRODUCT_INVENTORY_QUERY({ productSlug: param().product }));
 
   const relatedProducts = () => {
     const category = product()?.category;
@@ -37,6 +38,14 @@ function RouteComponent() {
     return category.parentCategory?.subCategories
       .flatMap((subCategory) => subCategory)
       .sort(() => Math.random() - 0.5);
+  };
+
+  const quantityAvailable = () => {
+    return Math.max(
+      0,
+      (inventory()?.quantity ?? 0) -
+        (inventory()?.orderedItems.reduce((acc, item) => acc + item.quantity, 0) ?? 0)
+    );
   };
 
   const rowVirtualizer = createVirtualizer({
@@ -71,10 +80,10 @@ function RouteComponent() {
                 <p>${product().price}</p>
                 <p>
                   <Show
-                    when={(product().quantity || 0) <= 5}
-                    fallback={`${product().quantity} in stock`}
+                    when={quantityAvailable() <= 5}
+                    fallback={`${quantityAvailable()} in stock`}
                   >
-                    Only {product().quantity} left!
+                    Only {quantityAvailable()} left!
                   </Show>
                 </p>
                 <Show
@@ -87,7 +96,7 @@ function RouteComponent() {
                             ?.quantity
                         }{" "}
                         in{" "}
-                        <Link to="/cart" class="hover:text-blue-500">
+                        <Link to="/checkout" class="hover:text-blue-500">
                           cart
                         </Link>
                       </p>

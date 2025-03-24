@@ -10,11 +10,11 @@ export const Cart = () => {
   const totalItems = () => cartData()?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
 
   return (
-    <Link class="flex items-center gap-1 w-16" to="/cart" onMouseEnter={() => {}}>
-      <CartIcon />
+    <Link class="flex items-center gap-1" to="/checkout">
       <Show when={totalItems()} fallback={<p>Empty</p>}>
         <p>{totalItems()}</p>
       </Show>
+      <CartIcon />
     </Link>
   );
 };
