@@ -8,15 +8,15 @@
 import {
   createSchema,
   definePermissions,
-  ExpressionBuilder,
-  Row,
+  type ExpressionBuilder,
+  type Row,
   ANYONE_CAN,
   table,
   string,
   boolean,
   relationships,
   number,
-  PermissionsConfig,
+  type PermissionsConfig,
 } from "@rocicorp/zero";
 
 const user = table("user")
@@ -75,12 +75,12 @@ type AuthData = {
 export const permissions = definePermissions<AuthData, Schema>(schema, () => {
   const allowIfLoggedIn = (
     authData: AuthData,
-    { cmpLit }: ExpressionBuilder<Schema, keyof Schema["tables"]>
+    { cmpLit }: ExpressionBuilder<Schema, keyof Schema["tables"]>,
   ) => cmpLit(authData.sub, "IS NOT", null);
 
   const allowIfMessageSender = (
     authData: AuthData,
-    { cmp }: ExpressionBuilder<Schema, "message">
+    { cmp }: ExpressionBuilder<Schema, "message">,
   ) => {
     return cmp("senderID", "=", authData.sub ?? "foo");
   };

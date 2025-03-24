@@ -1,24 +1,22 @@
-/* @refresh reload */
 import { render } from "solid-js/web";
-import App from "./App.tsx";
-import "./index.css";
-import { schema } from "./schema.ts";
-import Cookies from "js-cookie";
-import { decodeJwt } from "jose";
-import { createZero } from "@rocicorp/zero/solid";
+import { RouterProvider, createRouter } from "@tanstack/solid-router";
+import "./global.css";
 
-const encodedJWT = Cookies.get("jwt");
-const decodedJWT = encodedJWT && decodeJwt(encodedJWT);
-const userID = decodedJWT?.sub ? (decodedJWT.sub as string) : "anon";
+// Import the generated route tree
+import { routeTree } from "./routeTree.gen";
 
-const z = createZero({
-  userID,
-  auth: () => encodedJWT,
-  server: import.meta.env.VITE_PUBLIC_SERVER,
-  schema,
-  kvStore: "idb",
-});
+// Create a new router instance
+const router = createRouter({ routeTree });
 
-const root = document.getElementById("root");
+// Register the router instance for type safety
+declare module "@tanstack/solid-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
 
-render(() => <App z={z} />, root!);
+// Render the app
+const rootElement = document.getElementById("root")!;
+if (!rootElement.innerHTML) {
+  render(() => <RouterProvider router={router} />, rootElement);
+}

@@ -1,6 +1,6 @@
 /* eslint-disable */
 /// <reference path="./.sst/platform/config.d.ts" />
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
 
 export default $config({
   app(input) {
@@ -13,7 +13,7 @@ export default $config({
   },
   async run() {
     const zeroVersion = execSync(
-      "npm list @rocicorp/zero | grep @rocicorp/zero | cut -f 3 -d @"
+      "npm list @rocicorp/zero | grep @rocicorp/zero | cut -f 3 -d @",
     )
       .toString()
       .trim();
@@ -150,7 +150,7 @@ export default $config({
         vpc,
         environment: { ["ZERO_UPSTREAM_DB"]: conn.value },
         copyFiles: [{ from: ".permissions.sql", to: ".permissions.sql" }],
-      }
+      },
     );
 
     new aws.lambda.Invocation(
@@ -160,7 +160,7 @@ export default $config({
         input: Date.now().toString(),
         functionName: permissionsDeployer.name,
       },
-      { dependsOn: viewSyncer }
+      { dependsOn: viewSyncer },
     );
   },
 });
