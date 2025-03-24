@@ -56,7 +56,7 @@ CREATE INDEX idx_products_description_trgm ON products USING gin(description gin
 
 CREATE TABLE orders (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id     UUID NOT NULL REFERENCES users(id),
+    user_id     UUID REFERENCES users(id),
     status      VARCHAR(50) NOT NULL,
     total       NUMERIC(12, 2) DEFAULT 0.00,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW(),

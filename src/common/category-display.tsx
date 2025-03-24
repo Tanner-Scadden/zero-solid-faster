@@ -13,7 +13,7 @@ const CategoryProducts = (props: { products: Product[] }) => {
     count: props.products.length,
     getScrollElement: () => document.getElementById("category-products"),
     estimateSize: () => 6 * 10,
-    overscan: 200,
+    overscan: 6 * 10,
   });
 
   return (

@@ -11,24 +11,22 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as CartImport } from './routes/cart'
 import { Route as IndexImport } from './routes/index'
-import { Route as CategoryIndexImport } from './routes/$category/index'
 import { Route as ProductsProductImport } from './routes/products.$product'
 import { Route as CategoriesSplatImport } from './routes/categories.$'
-import { Route as CategorySubCategoryIndexImport } from './routes/$category/$subCategory/index'
-import { Route as CategorySubCategoryProductIndexImport } from './routes/$category/$subCategory/$product/index'
 
 // Create/Update Routes
+
+const CartRoute = CartImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const CategoryIndexRoute = CategoryIndexImport.update({
-  id: '/$category/',
-  path: '/$category/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -44,19 +42,6 @@ const CategoriesSplatRoute = CategoriesSplatImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const CategorySubCategoryIndexRoute = CategorySubCategoryIndexImport.update({
-  id: '/$category/$subCategory/',
-  path: '/$category/$subCategory/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const CategorySubCategoryProductIndexRoute =
-  CategorySubCategoryProductIndexImport.update({
-    id: '/$category/$subCategory/$product/',
-    path: '/$category/$subCategory/$product/',
-    getParentRoute: () => rootRoute,
-  } as any)
-
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/solid-router' {
@@ -66,6 +51,13 @@ declare module '@tanstack/solid-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartImport
       parentRoute: typeof rootRoute
     }
     '/categories/$': {
@@ -82,27 +74,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof ProductsProductImport
       parentRoute: typeof rootRoute
     }
-    '/$category/': {
-      id: '/$category/'
-      path: '/$category'
-      fullPath: '/$category'
-      preLoaderRoute: typeof CategoryIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/$category/$subCategory/': {
-      id: '/$category/$subCategory/'
-      path: '/$category/$subCategory'
-      fullPath: '/$category/$subCategory'
-      preLoaderRoute: typeof CategorySubCategoryIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/$category/$subCategory/$product/': {
-      id: '/$category/$subCategory/$product/'
-      path: '/$category/$subCategory/$product'
-      fullPath: '/$category/$subCategory/$product'
-      preLoaderRoute: typeof CategorySubCategoryProductIndexImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -110,76 +81,47 @@ declare module '@tanstack/solid-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cart': typeof CartRoute
   '/categories/$': typeof CategoriesSplatRoute
   '/products/$product': typeof ProductsProductRoute
-  '/$category': typeof CategoryIndexRoute
-  '/$category/$subCategory': typeof CategorySubCategoryIndexRoute
-  '/$category/$subCategory/$product': typeof CategorySubCategoryProductIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cart': typeof CartRoute
   '/categories/$': typeof CategoriesSplatRoute
   '/products/$product': typeof ProductsProductRoute
-  '/$category': typeof CategoryIndexRoute
-  '/$category/$subCategory': typeof CategorySubCategoryIndexRoute
-  '/$category/$subCategory/$product': typeof CategorySubCategoryProductIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/cart': typeof CartRoute
   '/categories/$': typeof CategoriesSplatRoute
   '/products/$product': typeof ProductsProductRoute
-  '/$category/': typeof CategoryIndexRoute
-  '/$category/$subCategory/': typeof CategorySubCategoryIndexRoute
-  '/$category/$subCategory/$product/': typeof CategorySubCategoryProductIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/categories/$'
-    | '/products/$product'
-    | '/$category'
-    | '/$category/$subCategory'
-    | '/$category/$subCategory/$product'
+  fullPaths: '/' | '/cart' | '/categories/$' | '/products/$product'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/categories/$'
-    | '/products/$product'
-    | '/$category'
-    | '/$category/$subCategory'
-    | '/$category/$subCategory/$product'
-  id:
-    | '__root__'
-    | '/'
-    | '/categories/$'
-    | '/products/$product'
-    | '/$category/'
-    | '/$category/$subCategory/'
-    | '/$category/$subCategory/$product/'
+  to: '/' | '/cart' | '/categories/$' | '/products/$product'
+  id: '__root__' | '/' | '/cart' | '/categories/$' | '/products/$product'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CartRoute: typeof CartRoute
   CategoriesSplatRoute: typeof CategoriesSplatRoute
   ProductsProductRoute: typeof ProductsProductRoute
-  CategoryIndexRoute: typeof CategoryIndexRoute
-  CategorySubCategoryIndexRoute: typeof CategorySubCategoryIndexRoute
-  CategorySubCategoryProductIndexRoute: typeof CategorySubCategoryProductIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CartRoute: CartRoute,
   CategoriesSplatRoute: CategoriesSplatRoute,
   ProductsProductRoute: ProductsProductRoute,
-  CategoryIndexRoute: CategoryIndexRoute,
-  CategorySubCategoryIndexRoute: CategorySubCategoryIndexRoute,
-  CategorySubCategoryProductIndexRoute: CategorySubCategoryProductIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -193,30 +135,22 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/cart",
         "/categories/$",
-        "/products/$product",
-        "/$category/",
-        "/$category/$subCategory/",
-        "/$category/$subCategory/$product/"
+        "/products/$product"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/cart": {
+      "filePath": "cart.tsx"
     },
     "/categories/$": {
       "filePath": "categories.$.tsx"
     },
     "/products/$product": {
       "filePath": "products.$product.tsx"
-    },
-    "/$category/": {
-      "filePath": "$category/index.tsx"
-    },
-    "/$category/$subCategory/": {
-      "filePath": "$category/$subCategory/index.tsx"
-    },
-    "/$category/$subCategory/$product/": {
-      "filePath": "$category/$subCategory/$product/index.tsx"
     }
   }
 }

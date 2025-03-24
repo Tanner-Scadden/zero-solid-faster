@@ -61,9 +61,8 @@ const product = table("products")
 const order = table("orders")
   .columns({
     id: string(),
-    userId: string().from("user_id"),
+    userId: string().optional().from("user_id"),
     status: string<"cart" | "ordered">(),
-    total: number(),
     createdAt: number().from("created_at"),
     updatedAt: number().from("updated_at"),
   })
@@ -164,8 +163,11 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
     { cmpLit }: ExpressionBuilder<Schema, keyof Schema["tables"]>
   ) => cmpLit(authData.sub, "IS NOT", null);
 
-  const allowIfOrderOwner = (authData: AuthData, { cmp }: ExpressionBuilder<Schema, "orders">) => {
-    return cmp("userId", "=", authData.sub ?? "");
+  const allowIfOrderOwner = (
+    authData: AuthData,
+    { or, cmp }: ExpressionBuilder<Schema, "orders">
+  ) => {
+    return or(cmp("userId", "IS", null), cmp("userId", "=", authData.sub ?? ""));
   };
 
   return {
@@ -192,7 +194,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
     orders: {
       row: {
         select: [allowIfOrderOwner],
-        insert: [allowIfLoggedIn],
+        insert: ANYONE_CAN,
         update: {
           preMutation: [allowIfOrderOwner],
           postMutation: [allowIfOrderOwner],
@@ -202,13 +204,13 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
     },
     order_items: {
       row: {
-        select: [allowIfLoggedIn],
-        insert: [allowIfLoggedIn],
+        select: ANYONE_CAN,
+        insert: ANYONE_CAN,
         update: {
-          preMutation: [allowIfLoggedIn],
-          postMutation: [allowIfLoggedIn],
+          preMutation: ANYONE_CAN,
+          postMutation: ANYONE_CAN,
         },
-        delete: [allowIfLoggedIn],
+        delete: ANYONE_CAN,
       },
     },
   } satisfies PermissionsConfig<AuthData, Schema>;

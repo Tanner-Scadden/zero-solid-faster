@@ -18,3 +18,6 @@ export const PRODUCT_QUERY = (productSlug: string) =>
 
 export const PRODUCT_SEARCH_QUERY = (search: string) =>
   zero.query.products.where(({ or, cmp }) => or(cmp("name", "ILIKE", `%${search}%`))).limit(25);
+
+export const CART_QUERY = (productIds: string[]) =>
+  zero.query.products.where("id", "IN", productIds);

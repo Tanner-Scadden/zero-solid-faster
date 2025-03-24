@@ -2,6 +2,7 @@ import { Meta, Title } from "@solidjs/meta";
 import { ProductSearch } from "@src/common/product-search";
 import { Link, Outlet, createRootRoute } from "@tanstack/solid-router";
 import { TanStackRouterDevtools } from "@tanstack/solid-router-devtools";
+import { Cart } from "./-components/cart";
 import { CategoryDrawer } from "./-components/category-drawer";
 
 export const Route = createRootRoute({
@@ -18,9 +19,12 @@ export const Route = createRootRoute({
           ZeroFaster
         </Link>
         <ProductSearch />
-        <button class="bg-blue-500 text-white rounded-md p-2" type="button">
-          Login
-        </button>
+        <div class="flex items-center gap-2">
+          <Cart />
+          <button class="bg-blue-500 text-white rounded-md p-2" type="button">
+            Login
+          </button>
+        </div>
       </div>
       <div class="flex">
         <CategoryDrawer />
