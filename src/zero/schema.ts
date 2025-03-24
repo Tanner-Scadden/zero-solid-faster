@@ -6,66 +6,152 @@
 // for more complex examples, including many-to-many.
 
 import {
+  ANYONE_CAN,
+  type ExpressionBuilder,
+  type PermissionsConfig,
+  type Row,
   createSchema,
   definePermissions,
-  type ExpressionBuilder,
-  type Row,
-  ANYONE_CAN,
-  table,
-  string,
-  boolean,
-  relationships,
   number,
-  type PermissionsConfig,
+  relationships,
+  string,
+  table,
 } from "@rocicorp/zero";
 
-const user = table("user")
+const category = table("categories")
   .columns({
     id: string(),
+    parentId: string().optional().from("parent_id"),
     name: string(),
-    partner: boolean(),
+    slug: string(),
+    description: string().optional(),
+    createdAt: number().from("created_at"),
+    updatedAt: number().from("updated_at"),
   })
   .primaryKey("id");
 
-const medium = table("medium")
+const user = table("users")
   .columns({
     id: string(),
+    firstName: string().from("first_name"),
+    lastName: string().from("last_name"),
+    email: string(),
+    passwordHash: string().from("password_hash"),
+    createdAt: number().from("created_at"),
+    updatedAt: number().from("updated_at"),
+  })
+  .primaryKey("id");
+
+const product = table("products")
+  .columns({
+    id: string(),
+    categoryId: string().optional().from("category_id"),
     name: string(),
+    slug: string(),
+    sku: string(),
+    price: number(),
+    imageUrl: string().optional().from("image_url"),
+    quantity: number(),
+    description: string().optional(),
+    createdAt: number().from("created_at"),
+    updatedAt: number().from("updated_at"),
   })
   .primaryKey("id");
 
-const message = table("message")
+const order = table("orders")
   .columns({
     id: string(),
-    senderID: string().from("sender_id"),
-    mediumID: string().from("medium_id"),
-    body: string(),
-    timestamp: number(),
+    userId: string().from("user_id"),
+    status: string<"cart" | "ordered">(),
+    total: number(),
+    createdAt: number().from("created_at"),
+    updatedAt: number().from("updated_at"),
   })
   .primaryKey("id");
 
-const messageRelationships = relationships(message, ({ one }) => ({
-  sender: one({
-    sourceField: ["senderID"],
+const orderItem = table("order_items")
+  .columns({
+    orderId: string().from("order_id"),
+    productId: string().from("product_id"),
+    quantity: number(),
+    unitPrice: number().from("unit_price"),
+  })
+  .primaryKey("orderId", "productId");
+
+// Define relationships
+const categoryRelationships = relationships(category, ({ one, many }) => ({
+  parent: one({
+    sourceField: ["parentId"],
+    destField: ["id"],
+    destSchema: category,
+  }),
+  products: many({
+    sourceField: ["id"],
+    destField: ["categoryId"],
+    destSchema: product,
+  }),
+  subCategories: many({
+    sourceField: ["id"],
+    destField: ["parentId"],
+    destSchema: category,
+  }),
+  parentCategory: one({
+    sourceField: ["parentId"],
+    destField: ["id"],
+    destSchema: category,
+  }),
+}));
+
+const productRelationships = relationships(product, ({ one }) => ({
+  category: one({
+    sourceField: ["categoryId"],
+    destField: ["id"],
+    destSchema: category,
+  }),
+}));
+
+const orderRelationships = relationships(order, ({ one, many }) => ({
+  user: one({
+    sourceField: ["userId"],
     destField: ["id"],
     destSchema: user,
   }),
-  medium: one({
-    sourceField: ["mediumID"],
+  items: many({
+    sourceField: ["id"],
+    destField: ["orderId"],
+    destSchema: orderItem,
+  }),
+}));
+
+const orderItemRelationships = relationships(orderItem, ({ one }) => ({
+  order: one({
+    sourceField: ["orderId"],
     destField: ["id"],
-    destSchema: medium,
+    destSchema: order,
+  }),
+  product: one({
+    sourceField: ["productId"],
+    destField: ["id"],
+    destSchema: product,
   }),
 }));
 
 export const schema = createSchema({
-  tables: [user, medium, message],
-  relationships: [messageRelationships],
+  tables: [category, user, product, order, orderItem],
+  relationships: [
+    categoryRelationships,
+    productRelationships,
+    orderRelationships,
+    orderItemRelationships,
+  ],
 });
 
 export type Schema = typeof schema;
-export type Message = Row<typeof schema.tables.message>;
-export type Medium = Row<typeof schema.tables.medium>;
-export type User = Row<typeof schema.tables.user>;
+export type Category = Row<typeof schema.tables.categories>;
+export type User = Row<typeof schema.tables.users>;
+export type Product = Row<typeof schema.tables.products>;
+export type Order = Row<typeof schema.tables.orders>;
+export type OrderItem = Row<typeof schema.tables.order_items>;
 
 // The contents of your decoded JWT.
 type AuthData = {
@@ -75,38 +161,54 @@ type AuthData = {
 export const permissions = definePermissions<AuthData, Schema>(schema, () => {
   const allowIfLoggedIn = (
     authData: AuthData,
-    { cmpLit }: ExpressionBuilder<Schema, keyof Schema["tables"]>,
+    { cmpLit }: ExpressionBuilder<Schema, keyof Schema["tables"]>
   ) => cmpLit(authData.sub, "IS NOT", null);
 
-  const allowIfMessageSender = (
-    authData: AuthData,
-    { cmp }: ExpressionBuilder<Schema, "message">,
-  ) => {
-    return cmp("senderID", "=", authData.sub ?? "foo");
+  const allowIfOrderOwner = (authData: AuthData, { cmp }: ExpressionBuilder<Schema, "orders">) => {
+    return cmp("userId", "=", authData.sub ?? "");
   };
+
   return {
-    medium: {
+    categories: {
       row: {
         select: ANYONE_CAN,
       },
     },
-    user: {
+    users: {
       row: {
         select: ANYONE_CAN,
-      },
-    },
-    message: {
-      row: {
-        insert: ANYONE_CAN,
+        // Users can only update their own profile
         update: {
-          // only sender can edit their own messages
-          preMutation: [allowIfMessageSender],
-          // sender can only set messages to be from themselves
-          postMutation: [allowIfMessageSender],
+          preMutation: [allowIfLoggedIn],
+          postMutation: [(authData, { cmp }) => cmp("id", "=", authData.sub ?? "")],
         },
-        // must be logged in to delete
-        delete: [allowIfLoggedIn],
+      },
+    },
+    products: {
+      row: {
         select: ANYONE_CAN,
+      },
+    },
+    orders: {
+      row: {
+        select: [allowIfOrderOwner],
+        insert: [allowIfLoggedIn],
+        update: {
+          preMutation: [allowIfOrderOwner],
+          postMutation: [allowIfOrderOwner],
+        },
+        delete: [allowIfOrderOwner],
+      },
+    },
+    order_items: {
+      row: {
+        select: [allowIfLoggedIn],
+        insert: [allowIfLoggedIn],
+        update: {
+          preMutation: [allowIfLoggedIn],
+          postMutation: [allowIfLoggedIn],
+        },
+        delete: [allowIfLoggedIn],
       },
     },
   } satisfies PermissionsConfig<AuthData, Schema>;

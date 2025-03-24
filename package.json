@@ -1,20 +1,25 @@
 {
-  "name": "hello-zero-solid",
+  "name": "zero-tanstack-faster",
+  "author": "Tanner Scadden",
+  "description": "NextFaster but with Zero, SolidJS, and Tanstack Router",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build && npx zero-deploy-permissions -p src/zero/schema.ts --output-format=sql --output-file=.permissions.sql",
+    "build": "tsc -b && vite build && source .env && npx zero-deploy-permissions -p src/zero/schema.ts --output-format=sql --output-file=.permissions.sql --upstream-db \"$ZERO_UPSTREAM_DB\"",
+    "dev": "./scripts/dev.sh",
     "dev:clean": "source .env && docker volume rm -f docker_zstart_solid_pgdata && rm -rf \"${ZERO_REPLICA_FILE}\"*",
     "dev:db-down": "docker compose --env-file .env -f ./docker/docker-compose.yml down",
     "dev:db-up": "docker compose --env-file .env -f ./docker/docker-compose.yml up",
     "dev:ui": "VITE_PUBLIC_SERVER='http://localhost:4848' bunx --bun vite",
-    "dev:zero-cache": "zero-cache-dev -p src/schema.ts",
-    "lint": "eslint ."
+    "dev:zero-cache": "zero-cache-dev -p src/zero/schema.ts --upstream-db \"$ZERO_UPSTREAM_DB\"",
+    "lint": "biome check .",
+    "format": "biome format . --write"
   },
   "dependencies": {
     "@rocicorp/zero": "0.17.2025031400",
     "@tanstack/solid-router": "^1.114.26",
+    "arktype": "^2.1.11",
     "jose": "^5.9.6",
     "js-cookie": "^3.0.5",
     "solid-js": "^1.9.3",
@@ -22,7 +27,7 @@
     "tailwindcss": "^4.0.15"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.0",
+    "@biomejs/biome": "1.5.3",
     "@hono/node-server": "^1.13.2",
     "@tailwindcss/vite": "^4.0.15",
     "@tanstack/router-plugin": "^1.114.27",
@@ -30,14 +35,14 @@
     "@types/aws-lambda": "8.10.147",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.7.9",
+    "concurrently": "^9.1.2",
     "dotenv": "^16.4.5",
-    "eslint": "^9.9.0",
     "globals": "^15.9.0",
     "hono": "^4.6.6",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1",
-    "vite-plugin-solid": "^2.10.2"
+    "vite-plugin-solid": "^2.10.2",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "trustedDependencies": [
     "@rocicorp/zero-sqlite3",
