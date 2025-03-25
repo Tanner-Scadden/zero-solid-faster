@@ -70,7 +70,7 @@ CREATE INDEX idx_orders_created_at ON orders(created_at);
 CREATE INDEX idx_orders_user_status ON orders(user_id, status);
 
 CREATE TABLE order_items (
-    order_id   UUID NOT NULL REFERENCES orders(id),
+    order_id   UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
     product_id UUID NOT NULL REFERENCES products(id),
     quantity   INT NOT NULL DEFAULT 1,
     unit_price NUMERIC(12, 2) NOT NULL,
